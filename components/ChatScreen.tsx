@@ -12,9 +12,10 @@ import { db, auth } from "../firebase";
 import Header from "./Header";
 import firebase from "firebase";
 interface Props {
+  navigation: any;
   route: any;
 }
-const ChatScreen: React.FC<Props> = ({ route }) => {
+const ChatScreen: React.FC<Props> = ({ navigation, route }) => {
   const [chat, setChat] = useState<any>([]);
   const [message, setMessage] = useState<string>("");
   useEffect(() => {
@@ -27,7 +28,7 @@ const ChatScreen: React.FC<Props> = ({ route }) => {
         setChat(
           snapshot.docs.map((val) => ({
             id: val.id,
-            email: val.data().email,
+            phoneNumber: val.data().phoneNumber,
             text: val.data().text,
           }))
         )
@@ -37,7 +38,7 @@ const ChatScreen: React.FC<Props> = ({ route }) => {
   const sendMessage = () => {
     if (message) {
       db.collection("messages").doc(route.params.id).collection("message").add({
-        email: auth.currentUser?.email,
+        phoneNumber: auth.currentUser?.phoneNumber,
         timestamp: firebase.firestore.FieldValue.serverTimestamp(),
         text: message,
       });
@@ -46,13 +47,14 @@ const ChatScreen: React.FC<Props> = ({ route }) => {
   };
   return (
     <KeyboardAvoidingView behavior="padding" style={styles.conatiner}>
-      <Header />
+      <Header navigation={navigation} />
       <View style={{ flex: 1 }}>
         <ScrollView style={{ backgroundColor: "#fff" }}>
           {chat.map((data: any) => (
             <View
+              key={data.id}
               style={
-                data.email === auth.currentUser?.email
+                data.phoneNumber === auth.currentUser?.phoneNumber
                   ? styles.senderchat
                   : styles.receiverchat
               }
@@ -60,7 +62,7 @@ const ChatScreen: React.FC<Props> = ({ route }) => {
               <Text
                 key={data.id}
                 style={
-                  data.email === auth.currentUser?.email
+                  data.phoneNumber === auth.currentUser?.phoneNumber
                     ? styles.sender
                     : styles.receiver
                 }
@@ -113,7 +115,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   sender: {
-    marginBottom: 20,
+    marginBottom: 1,
     backgroundColor: "#2C6BEE",
     padding: 10,
     borderRadius: 10,
@@ -122,7 +124,7 @@ const styles = StyleSheet.create({
     color: "#fff",
   },
   receiver: {
-    marginBottom: 20,
+    marginBottom: 1,
     backgroundColor: "#fff",
     padding: 10,
     borderRadius: 10,

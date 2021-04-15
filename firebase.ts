@@ -7,6 +7,9 @@ const firebaseConfig = {
   storageBucket: "androidchat-27956.appspot.com",
   messagingSenderId: "857757509466",
   appId: "1:857757509466:web:53102ecd5802c135db7563",
+  databaseURL: "",
+  trackingId: "",
+  measurementId: "",
 };
 
 let app: firebase.app.App;
@@ -19,4 +22,4 @@ if (firebase.apps.length === 0) {
 
 const db = app.firestore();
 const auth = firebase.auth();
-export { db, auth };
+export { db, auth, firebaseConfig };

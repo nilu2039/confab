@@ -28,7 +28,7 @@ const Login: React.FC<Props> = ({ navigation }) => {
     });
   };
   const registerUser = () => {
-    navigation.navigate("Register");
+    navigation.navigate("PhoneRegister");
   };
   return (
     <>
