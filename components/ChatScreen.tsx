@@ -12,16 +12,20 @@ import { db, auth } from "../firebase";
 import Header from "./Header";
 import firebase from "firebase";
 interface Props {
-  navigation: any;
-  route: any;
+  navigation?: any;
+  route?: any;
 }
 const ChatScreen: React.FC<Props> = ({ navigation, route }) => {
+  console.log(route.params.user + route.params.title);
+
   const [chat, setChat] = useState<any>([]);
   const [message, setMessage] = useState<string>("");
   useEffect(() => {
     const unsubscribe = db
       .collection("messages")
-      .doc(route.params.id)
+      .doc("chats")
+      .collection("chat")
+      .doc(route.params.user + route.params.number)
       .collection("message")
       .orderBy("timestamp", "asc")
       .onSnapshot((snapshot) =>
@@ -36,14 +40,47 @@ const ChatScreen: React.FC<Props> = ({ navigation, route }) => {
     return unsubscribe;
   }, []);
   const sendMessage = () => {
-    if (message) {
-      db.collection("messages").doc(route.params.id).collection("message").add({
-        phoneNumber: auth.currentUser?.phoneNumber,
-        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-        text: message,
-      });
-      setMessage("");
-    } else alert("Enter a message");
+    const promise = new Promise((resolve, reject) => {
+      db.collection("messages")
+        .doc("chats")
+        .collection("chat")
+        .onSnapshot((snapshot) => {
+          for (let i = 0; i <= snapshot.docs.length; i++) {
+            if (
+              snapshot?.docs[i]?.id ==
+              route.params.user + route.params.number
+            ) {
+              resolve(0);
+              break;
+            }
+          }
+          resolve(1);
+        });
+    });
+    promise.then((val) => {
+      if (val != 0) {
+        db.collection("messages")
+          .doc("chats")
+          .collection("chat")
+          .doc(route.params.user + route.params.number)
+          .set({
+            number: "Hello",
+          });
+      }
+      if (message) {
+        db.collection("messages")
+          .doc("chats")
+          .collection("chat")
+          .doc(route.params.user + route.params.number)
+          .collection("message")
+          .add({
+            phoneNumber: auth.currentUser?.phoneNumber,
+            timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+            text: message,
+          });
+        setMessage("");
+      } else alert("Enter a message");
+    });
   };
   return (
     <KeyboardAvoidingView behavior="padding" style={styles.conatiner}>

@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   View,
   Text,
@@ -9,15 +9,23 @@ import {
 } from "react-native";
 import { Button, TextInput, ActivityIndicator } from "react-native-paper";
 import uuid from "react-native-uuid";
-import { firebaseConfig } from "../firebase";
+import { auth, db, firebaseConfig } from "../firebase";
 import firebase from "firebase";
 import { FirebaseRecaptchaVerifierModal } from "expo-firebase-recaptcha";
+import * as Contacts from "expo-contacts";
 interface Props {
   navigation: any;
 }
+
 const Register: React.FC<Props> = ({ navigation }) => {
   LogBox.ignoreLogs(["Setting a timer"]);
   const [name, setName] = useState<string>("");
+  const [contact, setContact] = useState<any>([
+    {
+      name: "",
+      number: "",
+    },
+  ]);
   const [loading, setLoading] = useState<boolean>(false);
   const [photo, setPhoto] = useState<string>("");
   const recaptchaVerifier = useRef(null);
@@ -28,6 +36,14 @@ const Register: React.FC<Props> = ({ navigation }) => {
     text: "",
     color: "",
   });
+
+  useEffect(() => {
+    auth.onAuthStateChanged((user) => {
+      if (user) {
+        navigation.replace("ChatArea");
+      }
+    });
+  }, []);
   const attemptInvisibleVerification = false;
   const sendCode = async () => {
     try {
@@ -46,6 +62,7 @@ const Register: React.FC<Props> = ({ navigation }) => {
       showMessage({ text: `Error: ${err}`, color: "red" });
     }
   };
+
   const enterCode = async () => {
     setLoading(true);
     const seed = uuid.v4();
@@ -54,14 +71,23 @@ const Register: React.FC<Props> = ({ navigation }) => {
         verificationId!,
         verificationCode
       );
-     await firebase.auth().signInWithCredential((credential)).then(result => {
-       result.user?.updateProfile({
-         displayName: name,
-         photoURL: photo || `https://avatars.dicebear.com/api/male/${seed}.png`
-       })
-     })
+      await firebase
+        .auth()
+        .signInWithCredential(credential)
+        .then((result) => {
+          result.user?.updateProfile({
+            displayName: name,
+            photoURL:
+              photo || `https://avatars.dicebear.com/api/male/${seed}.png`,
+          });
+        });
       showMessage({ text: "Phone authentication successful 👍", color: "" });
       setLoading(false);
+      await db.collection("messages").doc("phone").collection("number").add({
+        phoneNumber: auth.currentUser?.phoneNumber,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+      });
+
       navigation.replace("ChatArea");
     } catch (err) {
       showMessage({ text: `Error: ${err.message}`, color: "red" });
