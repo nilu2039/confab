@@ -11,9 +11,7 @@ interface Props {
   navigation: any;
 }
 const App: React.FC<Props> = ({ navigation }) => {
-  var temp = 0;
   const [contacts, setContacts] = useState<any>([]);
-  const [id, setId] = useState<any>([]);
   useEffect(() => {
     const test = async () => {
       const { status } = await Contacts.requestPermissionsAsync();
@@ -67,18 +65,13 @@ const App: React.FC<Props> = ({ navigation }) => {
     test();
   }, []);
 
-  useEffect(() => {
-    console.log(contacts);
-  }, [contacts]);
-  const addgroup = async (number: string) => {
+  const addgroup = async (number: string, name: string) => {
     const promise = new Promise((resolve, reject) => {
       db.collection("messages")
         .doc("main")
         .collection("message")
         .onSnapshot((snapshot) => {
           for (let i = 0; i < snapshot.docs.length; i++) {
-            console.log(snapshot.docs[i].data().title);
-
             if (number == snapshot.docs[i].data().title) {
               resolve(0);
               break;
@@ -89,8 +82,6 @@ const App: React.FC<Props> = ({ navigation }) => {
     });
 
     promise.then((val) => {
-      console.log(number);
-
       if (val != 0) {
         db.collection("messages")
           .doc("main")
@@ -99,7 +90,8 @@ const App: React.FC<Props> = ({ navigation }) => {
             phoneNumber: auth.currentUser?.phoneNumber,
             timestamp: firebase.firestore.FieldValue.serverTimestamp(),
             title: number,
-            subtitle: `Hello ${number}`,
+            name: name,
+            subtitle: `Hello ${name}`,
           });
       }
 
@@ -124,7 +116,7 @@ const App: React.FC<Props> = ({ navigation }) => {
           style={{ marginLeft: 20 }}
         />
         <TouchableRipple
-          onPress={() => addgroup(number)}
+          onPress={() => addgroup(number, name)}
           rippleColor="#d3d3d3"
           borderless
           style={{ borderRadius: 10 }}
@@ -142,10 +134,13 @@ const App: React.FC<Props> = ({ navigation }) => {
   };
   return (
     <>
-      <Header navigation={navigation} />
-      <ScrollView>
+      <ScrollView style={{ backgroundColor: "#fff" }}>
         <View
-          style={{ display: "flex", flexDirection: "column", marginTop: 50 }}
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            marginTop: 15,
+          }}
         >
           {contacts.map((val: any) => (
             <Area
@@ -167,7 +162,6 @@ const styles = StyleSheet.create({
     display: "flex",
     flexDirection: "row",
     alignItems: "center",
-
     marginBottom: 14,
   },
 });

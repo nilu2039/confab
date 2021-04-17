@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
   StyleSheet,
   Dimensions,
   KeyboardAvoidingView,
+  FlatList,
 } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 import { Button, TextInput } from "react-native-paper";
@@ -16,10 +17,9 @@ interface Props {
   route?: any;
 }
 const ChatScreen: React.FC<Props> = ({ navigation, route }) => {
-  console.log(route.params.user + route.params.title);
-
   const [chat, setChat] = useState<any>([]);
   const [message, setMessage] = useState<string>("");
+  const dummy = useRef<FlatList>(null);
   useEffect(() => {
     const unsubscribe = db
       .collection("messages")
@@ -79,36 +79,43 @@ const ChatScreen: React.FC<Props> = ({ navigation, route }) => {
             text: message,
           });
         setMessage("");
+        dummy.current?.scrollToEnd();
       } else alert("Enter a message");
     });
+  };
+  const down = () => {
+    dummy.current?.scrollToEnd();
   };
   return (
     <KeyboardAvoidingView behavior="padding" style={styles.conatiner}>
       <Header navigation={navigation} />
       <View style={{ flex: 1 }}>
-        <ScrollView style={{ backgroundColor: "#fff" }}>
-          {chat.map((data: any) => (
+        <FlatList
+          onLayout={() => dummy.current?.scrollToEnd()}
+          onContentSizeChange={() => dummy.current?.scrollToEnd()}
+          ref={dummy}
+          keyExtractor={(item) => item.id}
+          data={chat}
+          renderItem={({ item }) => (
             <View
-              key={data.id}
               style={
-                data.phoneNumber === auth.currentUser?.phoneNumber
+                item.phoneNumber === auth.currentUser?.phoneNumber
                   ? styles.senderchat
                   : styles.receiverchat
               }
             >
               <Text
-                key={data.id}
                 style={
-                  data.phoneNumber === auth.currentUser?.phoneNumber
+                  item.phoneNumber === auth.currentUser?.phoneNumber
                     ? styles.sender
                     : styles.receiver
                 }
               >
-                {data.text}
+                {item.text}
               </Text>
             </View>
-          ))}
-        </ScrollView>
+          )}
+        />
         <View style={styles.input}>
           <TextInput
             multiline
@@ -120,6 +127,7 @@ const ChatScreen: React.FC<Props> = ({ navigation, route }) => {
             label="Type a message..."
             mode="outlined"
             value={message}
+            onFocus={down}
             onChangeText={(text) => setMessage(text)}
           />
           <Button

@@ -2,10 +2,18 @@ import { StatusBar } from "expo-status-bar";
 import React, { useState } from "react";
 import "react-native-vector-icons";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { Avatar, Menu } from "react-native-paper";
+import {
+  Avatar,
+  Button,
+  Dialog,
+  Menu,
+  Paragraph,
+  TextInput,
+} from "react-native-paper";
 import { AntDesign } from "@expo/vector-icons";
 import { Entypo } from "@expo/vector-icons";
 import { auth } from "../firebase";
+import { ScrollView } from "react-native-gesture-handler";
 
 interface Props {
   navigation: any;
@@ -13,7 +21,7 @@ interface Props {
 
 const Header: React.FC<Props> = ({ navigation }) => {
   const [visible, setVisible] = useState(false);
-
+  const [visibleGroup, setVisibleGroup] = React.useState(false);
   const openMenu = () => setVisible(true);
 
   const closeMenu = () => setVisible(false);
@@ -74,6 +82,13 @@ const Header: React.FC<Props> = ({ navigation }) => {
                 navigation.replace("PhoneRegister");
               }}
               title="Logout"
+            />
+            <Menu.Item
+              onPress={() => {
+                setVisible(false);
+                navigation.navigate("AddGroup");
+              }}
+              title="Create a group"
             />
           </Menu>
         </View>

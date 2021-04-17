@@ -1,7 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, Dimensions } from "react-native";
 import { AntDesign } from "@expo/vector-icons";
-import { TouchableRipple, TextInput, Button } from "react-native-paper";
+import {
+  TouchableRipple,
+  TextInput,
+  Button,
+  Dialog,
+  Paragraph,
+} from "react-native-paper";
 import { LogBox } from "react-native";
 import { ScrollView, TouchableOpacity } from "react-native-gesture-handler";
 import { auth, db } from "../firebase";
@@ -10,35 +16,17 @@ import Header from "./Header";
 
 interface Props {
   navigation: any;
-  number: string;
 }
 
 interface area {
   title: string;
   subtitle: string;
-  id: number;
+  name: string;
 }
 
-const ChatArea: React.FC<Props> = ({ navigation, number }) => {
+const ChatArea: React.FC<Props> = ({ navigation }) => {
   const [group, setGroup] = useState<any>([]);
   LogBox.ignoreLogs(["Setting a timer"]);
-  const [addGroup, setAddGroup] = useState<string>("");
-  const addgroup = () => {
-    if (addGroup) {
-      db.collection("messages")
-        .doc("main")
-        .collection("message")
-        .add({
-          phoneNumber: auth.currentUser?.phoneNumber,
-          timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-          title: addGroup,
-          subtitle: `Hello ${addGroup}`,
-        });
-      setAddGroup("");
-    } else {
-      return alert("Enter a group name");
-    }
-  };
 
   useEffect(() => {
     const unsubscribe = db
@@ -51,13 +39,14 @@ const ChatArea: React.FC<Props> = ({ navigation, number }) => {
           snapshot.docs.map((doc) => ({
             id: doc.id,
             title: doc.data().title,
+            name: doc.data().name,
             subtitle: doc.data().subtitle,
           }))
         )
       );
     return unsubscribe;
   }, []);
-  const Area: React.FC<area> = ({ title, subtitle, id }) => {
+  const Area: React.FC<area> = ({ title, subtitle, name }) => {
     return (
       <View style={styles.container}>
         <AntDesign
@@ -78,7 +67,7 @@ const ChatArea: React.FC<Props> = ({ navigation, number }) => {
           style={{ borderRadius: 10 }}
         >
           <View style={{ marginLeft: 10, width: 320 }}>
-            <Text style={{ fontSize: 22, fontWeight: "bold" }}>{title}</Text>
+            <Text style={{ fontSize: 22, fontWeight: "bold" }}>{name}</Text>
 
             <Text style={{ fontStyle: "italic", color: "gray", fontSize: 16 }}>
               {subtitle}
@@ -97,46 +86,13 @@ const ChatArea: React.FC<Props> = ({ navigation, number }) => {
     >
       <Header navigation={navigation} />
       <ScrollView style={{ backgroundColor: "#fff" }}>
-        <View
-          style={{
-            display: "flex",
-            flexDirection: "row",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <TextInput
-            mode="outlined"
-            dense
-            multiline
-            placeholder="Add a group"
-            value={addGroup}
-            onChangeText={(text) => setAddGroup(text)}
-            style={{ width: "65%", marginTop: 10 }}
-          />
-          <TouchableOpacity onPress={addgroup}>
-            <Button
-              mode="contained"
-              compact
-              color="#000"
-              style={{
-                marginTop: 10,
-                marginLeft: 10,
-                padding: 1,
-                borderRadius: 50,
-              }}
-            >
-              ADD GROUP
-            </Button>
-          </TouchableOpacity>
-        </View>
         <View>
           {group.map((val: any) => (
             <Area
               title={val.title}
               subtitle={val.subtitle}
+              name={val.name}
               key={val.id}
-              id={val.id}
             />
           ))}
         </View>
