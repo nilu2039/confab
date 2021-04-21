@@ -13,6 +13,7 @@ import { auth, db, firebaseConfig } from "../firebase";
 import firebase from "firebase";
 import { FirebaseRecaptchaVerifierModal } from "expo-firebase-recaptcha";
 import Loading from "./Loading";
+import { ScrollView } from "react-native-gesture-handler";
 interface Props {
   navigation: any;
 }
@@ -117,101 +118,103 @@ const Register: React.FC<Props> = ({ navigation }) => {
       {splashloading ? (
         <Loading loading={splashloading} />
       ) : (
-        <View
-          style={{
-            flex: 1,
-            alignItems: "center",
-            justifyContent: "center",
-            backgroundColor: "#fff",
-          }}
-        >
-          <FirebaseRecaptchaVerifierModal
-            ref={recaptchaVerifier}
-            firebaseConfig={firebaseConfig}
-            attemptInvisibleVerification={attemptInvisibleVerification}
-          />
-          <SafeAreaView style={styles.container}>
-            <View
-              style={{
-                width: Dimensions.get("window").width,
-              }}
-            >
-              <Text
+        <ScrollView>
+          <View
+            style={{
+              flex: 1,
+              alignItems: "center",
+              justifyContent: "center",
+              backgroundColor: "#fff",
+            }}
+          >
+            <FirebaseRecaptchaVerifierModal
+              ref={recaptchaVerifier}
+              firebaseConfig={firebaseConfig}
+              attemptInvisibleVerification={attemptInvisibleVerification}
+            />
+            <View style={styles.container}>
+              <View
                 style={{
-                  color: message.color || "blue",
-                  fontSize: 18,
-                  textAlign: "center",
-                  fontWeight: "bold",
-                  marginBottom: 20,
+                  width: Dimensions.get("window").width,
                 }}
               >
-                {message.text}
-              </Text>
+                <Text
+                  style={{
+                    color: message.color || "blue",
+                    fontSize: 18,
+                    textAlign: "center",
+                    fontWeight: "bold",
+                    marginBottom: 20,
+                  }}
+                >
+                  {message.text}
+                </Text>
+              </View>
+              <Text style={styles.text}>Create a confab account</Text>
+              <View>
+                <TextInput
+                  dense
+                  mode="outlined"
+                  placeholder="Name"
+                  value={name}
+                  label="Name"
+                  onChangeText={(text) => setName(text)}
+                  style={{ width: 300 }}
+                />
+                <TextInput
+                  dense
+                  mode="outlined"
+                  placeholder="Phone Number"
+                  value={phoneNumber}
+                  label="Phone Number"
+                  autoCompleteType="tel"
+                  keyboardType="phone-pad"
+                  textContentType="telephoneNumber"
+                  onChangeText={(text) => setPhoneNumber(text)}
+                  style={{ width: 300, marginTop: 20 }}
+                />
+                <TextInput
+                  dense
+                  secureTextEntry={true}
+                  mode="outlined"
+                  placeholder="Enter a photo URL(Optional)"
+                  value={photo}
+                  label="Enter a photo URL(Optional)"
+                  onChangeText={(text) => setPhoto(text)}
+                  style={{ width: 300, marginTop: 20, marginBottom: 20 }}
+                />
+              </View>
+              <View>
+                <Button mode="contained" color="#2C6BEE" onPress={sendCode}>
+                  Get verification code
+                </Button>
+              </View>
+              <View>
+                <TextInput
+                  dense
+                  disabled={!verificationId}
+                  secureTextEntry={true}
+                  mode="outlined"
+                  placeholder="Confirm code"
+                  value={verificationCode}
+                  label="Confirm Code"
+                  onChangeText={(text) => setVerificationCode(text)}
+                  style={{ width: 300, marginTop: 20, marginBottom: 20 }}
+                />
+                <Button
+                  mode="contained"
+                  color="#2C6BEE"
+                  onPress={enterCode}
+                  disabled={!verificationId}
+                >
+                  Continue
+                </Button>
+                <ActivityIndicator animating={loading} color="red" />
+              </View>
+              <View style={{ height: 100 }}></View>
             </View>
-            <Text style={styles.text}>Create a confab account</Text>
-            <View>
-              <TextInput
-                dense
-                mode="outlined"
-                placeholder="Name"
-                value={name}
-                label="Name"
-                onChangeText={(text) => setName(text)}
-                style={{ width: 300 }}
-              />
-              <TextInput
-                dense
-                mode="outlined"
-                placeholder="Phone Number"
-                value={phoneNumber}
-                label="Phone Number"
-                autoCompleteType="tel"
-                keyboardType="phone-pad"
-                textContentType="telephoneNumber"
-                onChangeText={(text) => setPhoneNumber(text)}
-                style={{ width: 300, marginTop: 20 }}
-              />
-              <TextInput
-                dense
-                secureTextEntry={true}
-                mode="outlined"
-                placeholder="Enter a photo URL(Optional)"
-                value={photo}
-                label="Enter a photo URL(Optional)"
-                onChangeText={(text) => setPhoto(text)}
-                style={{ width: 300, marginTop: 20, marginBottom: 20 }}
-              />
-            </View>
-            <View>
-              <Button mode="contained" color="#2C6BEE" onPress={sendCode}>
-                Get verification code
-              </Button>
-            </View>
-            <View>
-              <TextInput
-                dense
-                disabled={!verificationId}
-                secureTextEntry={true}
-                mode="outlined"
-                placeholder="Confirm code"
-                value={verificationCode}
-                label="Confirm Code"
-                onChangeText={(text) => setVerificationCode(text)}
-                style={{ width: 300, marginTop: 20, marginBottom: 20 }}
-              />
-              <Button
-                mode="contained"
-                color="#2C6BEE"
-                onPress={enterCode}
-                disabled={!verificationId}
-              >
-                Continue
-              </Button>
-              <ActivityIndicator animating={loading} color="red" />
-            </View>
-            <View style={{ height: 100 }}></View>
-          </SafeAreaView>
-        </View>
+          </View>
+        </ScrollView>
       )}
     </>
   );

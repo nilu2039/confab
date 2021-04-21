@@ -7,7 +7,6 @@ import {
   KeyboardAvoidingView,
   FlatList,
 } from "react-native";
-import { ScrollView } from "react-native-gesture-handler";
 import { Button, TextInput } from "react-native-paper";
 import { db, auth } from "../firebase";
 import Header from "./Header";
@@ -16,6 +15,10 @@ interface Props {
   navigation?: any;
   route?: any;
 }
+var uuid: string;
+var counter: string = "";
+var add: string = "";
+var add2: string = "";
 const ChatScreen: React.FC<Props> = ({ navigation, route }) => {
   const [chat, setChat] = useState<any>([]);
   const [message, setMessage] = useState<string>("");
@@ -25,7 +28,7 @@ const ChatScreen: React.FC<Props> = ({ navigation, route }) => {
       .collection("messages")
       .doc("chats")
       .collection("chat")
-      .doc(route.params.user + route.params.number)
+      .doc(route.params.chatId)
       .collection("message")
       .orderBy("timestamp", "asc")
       .onSnapshot((snapshot) =>
@@ -39,17 +42,14 @@ const ChatScreen: React.FC<Props> = ({ navigation, route }) => {
       );
     return unsubscribe;
   }, []);
-  const sendMessage = () => {
+  const sendMessage = async () => {
     const promise = new Promise((resolve, reject) => {
       db.collection("messages")
         .doc("chats")
         .collection("chat")
         .onSnapshot((snapshot) => {
           for (let i = 0; i <= snapshot.docs.length; i++) {
-            if (
-              snapshot?.docs[i]?.id ==
-              route.params.user + route.params.number
-            ) {
+            if (snapshot?.docs[i]?.id == route.params.chatId) {
               resolve(0);
               break;
             }
@@ -57,12 +57,13 @@ const ChatScreen: React.FC<Props> = ({ navigation, route }) => {
           resolve(1);
         });
     });
-    promise.then((val) => {
+    promise.then(async (val) => {
       if (val != 0) {
-        db.collection("messages")
+        await db
+          .collection("messages")
           .doc("chats")
           .collection("chat")
-          .doc(route.params.user + route.params.number)
+          .doc(route.params.chatId)
           .set({
             number: "Hello",
           });
@@ -71,7 +72,7 @@ const ChatScreen: React.FC<Props> = ({ navigation, route }) => {
         db.collection("messages")
           .doc("chats")
           .collection("chat")
-          .doc(route.params.user + route.params.number)
+          .doc(route.params.chatId)
           .collection("message")
           .add({
             phoneNumber: auth.currentUser?.phoneNumber,
@@ -82,6 +83,117 @@ const ChatScreen: React.FC<Props> = ({ navigation, route }) => {
         dummy.current?.scrollToEnd();
       } else alert("Enter a message");
     });
+    /*await db
+      .collection("messages")
+      .doc("main")
+      .collection("message")
+      .doc(route.params.number)
+      .collection("number")
+      .where("number", "in", [route.params.user])
+      .get()
+      .then((snapshot) => {
+        snapshot.docs.map((val) => {
+          add = val.id;
+        });
+      });*/
+    await db
+      .collection("messages")
+      .doc("main")
+      .collection("message")
+      .doc(route.params.user)
+      .collection("number")
+      .where("title", "in", [route.params.number])
+      .get()
+      .then((snapshot) => {
+        snapshot.docs.map((val) => {
+          add2 = val.id;
+        });
+      });
+
+    /*if (add == "") {
+      await db
+        .collection("messages")
+        .doc("main")
+        .collection("message")
+        .doc(route.params.number)
+        .set({
+          number: route.params.number,
+        });
+    }*/
+
+    if (add2 == "") {
+      db.collection("messages")
+        .doc("main")
+        .collection("message")
+        .doc(route.params.user)
+        .collection("number")
+        .add({
+          phoneNumber: auth.currentUser?.phoneNumber,
+          timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+          title: route.params.number,
+          name: route.params.number,
+          subtitle: `Hello ${route.params.number}`,
+          groupCreator: "",
+          uid: "",
+          type: "external",
+          chatId: route.params.chatId,
+        });
+    }
+    await db
+      .collection("messages")
+      .doc("main")
+      .collection("message")
+      .doc(route.params.number)
+      .collection("number")
+      .where("title", "in", [route.params.user])
+      .get()
+      .then((val) => {
+        val.docs.map((data) => {
+          counter = data.id;
+        });
+      });
+
+    if (counter == "") {
+      db.collection("messages")
+        .doc("main")
+        .collection("message")
+        .doc(route.params.number)
+        .collection("number")
+        .add({
+          phoneNumber: auth.currentUser?.phoneNumber,
+          timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+          title: auth.currentUser?.phoneNumber,
+          name: auth.currentUser?.phoneNumber,
+          subtitle: `Hello ${auth.currentUser?.phoneNumber}`,
+          groupCreator: "",
+          uid: "",
+          type: "external",
+          chatId: route.params.chatId,
+        });
+      await db
+        .collection("messages")
+        .doc("main")
+        .collection("message")
+        .doc(route.params.user)
+        .collection("number")
+        .where("title", "in", [route.params.number])
+        .get()
+        .then((val) => {
+          val.docs.map((data) => {
+            uuid = data.id;
+          });
+        });
+
+      db.collection("messages")
+        .doc("main")
+        .collection("message")
+        .doc(route.params.user)
+        .collection("number")
+        .doc(uuid)
+        .update({
+          chatId: route.params.chatId,
+        });
+    }
   };
   const down = () => {
     dummy.current?.scrollToEnd();
