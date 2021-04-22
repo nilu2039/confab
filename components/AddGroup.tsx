@@ -1,67 +1,88 @@
 import React, { useState } from "react";
-import { View } from "react-native";
+import { View, Text, Dimensions } from "react-native";
 import { ScrollView, TouchableOpacity } from "react-native-gesture-handler";
 import { Button, Dialog, Paragraph, TextInput } from "react-native-paper";
 import { db, auth } from "../firebase";
 import firebase from "firebase";
 import "react-native-get-random-values";
 import { nanoid } from "nanoid";
+var join: string = "";
+var join2: string = "";
 const AddGroup: React.FC = () => {
   const [addGroup, setAddGroup] = useState<string>("");
   const [joinGroup, setJoinGroup] = useState<string>("");
   const [visible, setVisible] = useState<boolean>(false);
   const [success, setSuccess] = useState<boolean>(false);
   const [number, setNumber] = useState<string>("");
-  const joingroup = () => {
-    const promise = new Promise((resolve, reject) => {
-      db.collection("messages")
-        .doc("main")
-        .collection("message")
-        .doc(joinGroup.split("*")[1])
-        .collection("number")
-        .onSnapshot((snapshot) => {
-          for (let i = 0; i < snapshot.docs.length; i++) {
-            if (snapshot.docs[i].data().uid == joinGroup) {
-              resolve(1);
-              break;
-            }
-          }
-          resolve(0);
+  const [joinsuccess, setJoinSuccess] = useState<boolean>(false);
+  const joingroup = async () => {
+    await db
+      .collection("messages")
+      .doc("main")
+      .collection("message")
+      .doc(joinGroup.split("*")[1])
+      .collection("number")
+      .where("uid", "in", [joinGroup])
+      .get()
+      .then((val) => {
+        val.docs.map((data) => {
+          join = data.data().uid;
         });
-    });
-    promise.then(async (val) => {
-      if (val == 1) {
-        const temp = await db
+      });
+    if (join) {
+      try {
+        await db
           .collection("messages")
-          .doc("main")
-          .collection("message")
-          .doc(joinGroup.split("*")[1])
-          .collection("number")
-          .doc(joinGroup.split("*")[2])
-          .get();
-        console.log(temp.data());
-
-        db.collection("messages")
           .doc("main")
           .collection("message")
           .doc(auth.currentUser?.phoneNumber!)
           .collection("number")
-          .add({
-            groupCreator: joinGroup.split("*")[1],
-            name: joinGroup.split("*")[0],
-            phoneNumber: "+911234567893",
-            subtitle: "Hello Test",
-            timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-            title: auth.currentUser?.phoneNumber,
-            uid: joinGroup,
-            type: "",
+          .where("uid", "in", [joinGroup])
+          .get()
+          .then((val) => {
+            val.docs.map((data) => {
+              join2 = data.data().uid;
+              console.log(join2);
+            });
           });
-        setNumber(joinGroup.split("*")[1]);
+        if (join2 == "") {
+          await db
+            .collection("messages")
+            .doc("main")
+            .collection("message")
+            .doc(joinGroup.split("*")[1])
+            .collection("number")
+            .doc(joinGroup.split("*")[2])
+            .get();
+
+          db.collection("messages")
+            .doc("main")
+            .collection("message")
+            .doc(auth.currentUser?.phoneNumber!)
+            .collection("number")
+            .add({
+              groupCreator: joinGroup.split("*")[1],
+              name: joinGroup.split("*")[0],
+              phoneNumber: joinGroup.split("*")[1],
+              subtitle: `Hello ${joinGroup.split("*")[0]}`,
+              timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+              title: auth.currentUser?.phoneNumber,
+              uid: joinGroup,
+              type: "",
+              chatId: joinGroup.split("*")[2],
+            });
+          setNumber(joinGroup.split("*")[1]);
+          setJoinSuccess(true);
+          setJoinGroup("");
+        }
+      } catch (error) {
+        alert(error);
       }
-    });
+    }
   };
   const addgroup = () => {
     if (addGroup) {
+      let uid = addGroup + "*" + auth.currentUser?.phoneNumber + "*" + nanoid();
       try {
         const promise = new Promise((resolve, reject) => {
           db.collection("messages")
@@ -100,8 +121,8 @@ const AddGroup: React.FC = () => {
             subtitle: `Hello ${addGroup}`,
             name: addGroup,
             groupCreator: auth.currentUser?.phoneNumber,
-            uid:
-              addGroup + "*" + auth.currentUser?.phoneNumber + "*" + nanoid(),
+            uid: uid,
+            chatId: uid.split("*")[2],
           });
         setAddGroup("");
         setSuccess(true);
@@ -114,74 +135,94 @@ const AddGroup: React.FC = () => {
   };
   return (
     <>
-      <ScrollView style={{ backgroundColor: "#fff" }}>
+      <View
+        style={{
+          backgroundColor: "#fff",
+          flex: 1,
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
         <View
           style={{
-            display: "flex",
-            flexDirection: "row",
-            alignItems: "center",
-            justifyContent: "center",
+            height: Dimensions.get("window").height * 0.25,
+            justifyContent: "space-between",
           }}
         >
-          <TextInput
-            mode="outlined"
-            dense
-            multiline
-            placeholder="Add a group"
-            value={addGroup}
-            onChangeText={(text) => setAddGroup(text)}
-            style={{ width: "65%", marginTop: 10 }}
-          />
-          <TouchableOpacity onPress={addgroup}>
-            <Button
-              mode="contained"
-              compact
-              color="#000"
-              style={{
-                marginTop: 10,
-                marginLeft: 10,
-                padding: 1,
-                borderRadius: 50,
-              }}
-            >
-              ADD GROUP
-            </Button>
-          </TouchableOpacity>
+          <View
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <TextInput
+              mode="outlined"
+              dense
+              multiline
+              placeholder="Add a group"
+              value={addGroup}
+              onChangeText={(text) => setAddGroup(text)}
+              style={{ width: "65%", marginTop: 10 }}
+            />
+            <TouchableOpacity onPress={addgroup}>
+              <Button
+                mode="contained"
+                compact
+                color="#000"
+                style={{
+                  marginTop: 10,
+                  marginLeft: 10,
+                  padding: 1,
+                  borderRadius: 50,
+                }}
+              >
+                ADD GROUP
+              </Button>
+            </TouchableOpacity>
+          </View>
+          <Text
+            style={{ textAlign: "center", fontSize: 25, fontWeight: "700" }}
+          >
+            {" "}
+            OR{" "}
+          </Text>
+          <View
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <TextInput
+              mode="outlined"
+              dense
+              multiline
+              placeholder="Join a group"
+              value={joinGroup}
+              onChangeText={(text) => setJoinGroup(text)}
+              style={{ width: "65%", marginTop: 10 }}
+            />
+            <TouchableOpacity onPress={joingroup}>
+              <Button
+                mode="contained"
+                compact
+                color="#000"
+                style={{
+                  marginTop: 10,
+                  marginLeft: 10,
+                  padding: 1,
+                  borderRadius: 50,
+                }}
+              >
+                JOIN GROUP
+              </Button>
+            </TouchableOpacity>
+          </View>
         </View>
-        <View
-          style={{
-            display: "flex",
-            flexDirection: "row",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <TextInput
-            mode="outlined"
-            dense
-            multiline
-            placeholder="Add a group"
-            value={joinGroup}
-            onChangeText={(text) => setJoinGroup(text)}
-            style={{ width: "65%", marginTop: 10 }}
-          />
-          <TouchableOpacity onPress={joingroup}>
-            <Button
-              mode="contained"
-              compact
-              color="#000"
-              style={{
-                marginTop: 10,
-                marginLeft: 10,
-                padding: 1,
-                borderRadius: 50,
-              }}
-            >
-              JOIN GROUP
-            </Button>
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
+      </View>
       {visible && (
         <Dialog visible={visible} onDismiss={() => setVisible(false)}>
           <Dialog.Title>Error</Dialog.Title>
@@ -204,6 +245,20 @@ const AddGroup: React.FC = () => {
           </Dialog.Content>
           <Dialog.Actions>
             <Button onPress={() => setSuccess(false)}>OK</Button>
+          </Dialog.Actions>
+        </Dialog>
+      )}
+      {joinsuccess && (
+        <Dialog visible={joinsuccess} onDismiss={() => setJoinSuccess(false)}>
+          <Dialog.Title>Congrats</Dialog.Title>
+          <Dialog.Content>
+            <Paragraph>
+              You have successfully joined a group. Go back to homescreen to
+              start messaging.
+            </Paragraph>
+          </Dialog.Content>
+          <Dialog.Actions>
+            <Button onPress={() => setJoinSuccess(false)}>OK</Button>
           </Dialog.Actions>
         </Dialog>
       )}

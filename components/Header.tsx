@@ -2,29 +2,33 @@ import { StatusBar } from "expo-status-bar";
 import React, { useState } from "react";
 import "react-native-vector-icons";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import {
-  Avatar,
-  Button,
-  Dialog,
-  Menu,
-  Paragraph,
-  TextInput,
-} from "react-native-paper";
+import { Avatar, Menu } from "react-native-paper";
 import { AntDesign } from "@expo/vector-icons";
 import { Entypo } from "@expo/vector-icons";
-import { auth } from "../firebase";
-import { ScrollView } from "react-native-gesture-handler";
+import { auth, db } from "../firebase";
 
 interface Props {
   navigation: any;
 }
 
 const Header: React.FC<Props> = ({ navigation }) => {
+  console.log(auth.currentUser?.photoURL);
+
   const [visible, setVisible] = useState(false);
-  const [visibleGroup, setVisibleGroup] = React.useState(false);
+  const [photo, setPhoto] = React.useState<string>(" ");
   const openMenu = () => setVisible(true);
 
   const closeMenu = () => setVisible(false);
+  db.collection("messages")
+    .doc("phone")
+    .collection("number")
+    .where("phoneNumber", "in", [auth.currentUser?.phoneNumber])
+    .get()
+    .then((val) => {
+      val.docs.map((data) => {
+        setPhoto(data.data().profilePhoto);
+      });
+    });
   return (
     <View>
       <View style={styles.header}>
@@ -38,7 +42,7 @@ const Header: React.FC<Props> = ({ navigation }) => {
           <Avatar.Image
             size={35}
             source={{
-              uri: auth.currentUser?.photoURL!,
+              uri: photo,
             }}
           />
           <Text style={{ marginLeft: 20, fontSize: 22, fontWeight: "bold" }}>
@@ -88,7 +92,7 @@ const Header: React.FC<Props> = ({ navigation }) => {
                 setVisible(false);
                 navigation.navigate("AddGroup");
               }}
-              title="Create a group"
+              title="Create/Join a group"
             />
           </Menu>
         </View>

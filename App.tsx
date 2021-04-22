@@ -43,7 +43,7 @@ const App: React.FC = () => {
             name="AddGroup"
             component={AddGroup}
             options={{
-              title: "Create a group",
+              title: "Create or Join a group",
               headerShown: true,
               headerTintColor: "#fff",
               headerTitleAlign: "center",

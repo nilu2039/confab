@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, Dimensions } from "react-native";
 import { AntDesign } from "@expo/vector-icons";
-import { TouchableRipple } from "react-native-paper";
+import { Avatar, TouchableRipple } from "react-native-paper";
 import { LogBox } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 import { auth, db } from "../firebase";
@@ -19,12 +19,13 @@ interface area {
   subtitle: string;
   name: string;
   chatId: string;
+  photo: string;
 }
 
 const ChatArea: React.FC<Props> = ({ navigation, contacts }) => {
   const [group, setGroup] = useState<any>([]);
   LogBox.ignoreLogs(["Setting a timer"]);
-
+  var arr: any = [];
   useEffect(() => {
     const unsubscribe = db
       .collection("messages")
@@ -41,6 +42,7 @@ const ChatArea: React.FC<Props> = ({ navigation, contacts }) => {
             name: doc.data().name,
             subtitle: doc.data().subtitle,
             chatId: doc.data().chatId,
+            photo: doc.data().photo,
           }))
         )
       );
@@ -72,7 +74,8 @@ const ChatArea: React.FC<Props> = ({ navigation, contacts }) => {
               .then((val) => {
                 val.docs.map((doc) => {
                   console.log(doc.data());
-                  setGroup([
+                  setGroup((prev: any) => [
+                    ...prev,
                     {
                       id: doc.id,
                       title: (
@@ -90,7 +93,7 @@ const ChatArea: React.FC<Props> = ({ navigation, contacts }) => {
               });
             return unsubscribe;
           });
-          await db
+          /*await db
             .collection("messages")
             .doc("main")
             .collection("message")
@@ -132,14 +135,57 @@ const ChatArea: React.FC<Props> = ({ navigation, contacts }) => {
       }
     };
     test();
+  }, [useIsFocused()]);
+  /*useEffect(() => {
+    const test = async () => {
+      const { status } = await Contacts.requestPermissionsAsync();
+      if (status === "granted") {
+        const { data } = await Contacts.getContactsAsync({
+          fields: [Contacts.Fields.PhoneNumbers],
+        });
+        if (data.length > 0) {
+          data.map(async (contact) => {
+            db.collection("messages")
+              .doc("main")
+              .collection("message")
+              .doc(auth.currentUser?.phoneNumber!)
+              .collection("number")
+              .orderBy("timestamp", "desc")
+              .onSnapshot((snapshot) =>
+                setGroup(
+                  snapshot.docs.map(
+                    (doc) =>
+                      doc.data().title ==
+                        (
+                          "+91" +
+                          contact.phoneNumbers?.map((doc) =>
+                            doc.number?.split(",")
+                          )[0]
+                        ).replace(/\s+/g, "") && {
+                        id: doc.id,
+                        title: doc.data().title,
+                        name: doc.data().name,
+                        subtitle: doc.data().subtitle,
+                        chatId: doc.data().chatId,
+                      }
+                  )
+                )
+              );
+          });
+          console.log(arr);
+        }
+      }
+    };
+    test();
   }, [useIsFocused()]);*/
-  const Area: React.FC<area> = ({ title, subtitle, name, chatId }) => {
+  const Area: React.FC<area> = ({ title, subtitle, name, chatId, photo }) => {
     return (
       <View style={styles.container}>
-        <AntDesign
-          name="aliwangwang-o1"
-          size={40}
-          color="black"
+        <Avatar.Image
+          size={50}
+          source={{
+            uri: photo,
+          }}
           style={{ marginLeft: 20 }}
         />
         <TouchableRipple
@@ -182,6 +228,7 @@ const ChatArea: React.FC<Props> = ({ navigation, contacts }) => {
               name={val.name}
               key={val.id}
               chatId={val.chatId}
+              photo={val.photo}
             />
           ))}
         </View>

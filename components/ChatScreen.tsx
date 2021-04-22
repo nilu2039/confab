@@ -83,19 +83,6 @@ const ChatScreen: React.FC<Props> = ({ navigation, route }) => {
         dummy.current?.scrollToEnd();
       } else alert("Enter a message");
     });
-    /*await db
-      .collection("messages")
-      .doc("main")
-      .collection("message")
-      .doc(route.params.number)
-      .collection("number")
-      .where("number", "in", [route.params.user])
-      .get()
-      .then((snapshot) => {
-        snapshot.docs.map((val) => {
-          add = val.id;
-        });
-      });*/
     await db
       .collection("messages")
       .doc("main")
@@ -110,18 +97,19 @@ const ChatScreen: React.FC<Props> = ({ navigation, route }) => {
         });
       });
 
-    /*if (add == "") {
+    if (add2 == "") {
+      let photo: string = "";
       await db
         .collection("messages")
-        .doc("main")
-        .collection("message")
-        .doc(route.params.number)
-        .set({
-          number: route.params.number,
+        .doc("phone")
+        .collection("number")
+        .where("phoneNumber", "in", [route.params.number])
+        .get()
+        .then((val) => {
+          val.docs.map((data) => {
+            photo = data.data().profilePhoto;
+          });
         });
-    }*/
-
-    if (add2 == "") {
       db.collection("messages")
         .doc("main")
         .collection("message")
@@ -137,6 +125,7 @@ const ChatScreen: React.FC<Props> = ({ navigation, route }) => {
           uid: "",
           type: "external",
           chatId: route.params.chatId,
+          photo: photo,
         });
     }
     await db
@@ -154,6 +143,18 @@ const ChatScreen: React.FC<Props> = ({ navigation, route }) => {
       });
 
     if (counter == "") {
+      let photo: string = "";
+      await db
+        .collection("messages")
+        .doc("phone")
+        .collection("number")
+        .where("phoneNumber", "in", [route.params.user])
+        .get()
+        .then((val) => {
+          val.docs.map((data) => {
+            photo = data.data().profilePhoto;
+          });
+        });
       db.collection("messages")
         .doc("main")
         .collection("message")
@@ -169,6 +170,7 @@ const ChatScreen: React.FC<Props> = ({ navigation, route }) => {
           uid: "",
           type: "external",
           chatId: route.params.chatId,
+          photo: photo,
         });
       await db
         .collection("messages")
