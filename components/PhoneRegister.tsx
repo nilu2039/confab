@@ -116,7 +116,9 @@ const Register: React.FC<Props> = ({ navigation }) => {
   return (
     <ScrollView>
       {splashloading ? (
-        <Loading loading={splashloading} />
+        <View style={{ height: Dimensions.get("screen").height }}>
+          <Loading loading={splashloading} />
+        </View>
       ) : (
         <KeyboardAvoidingView
           behavior="padding"

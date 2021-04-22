@@ -11,6 +11,9 @@ import { Button, TextInput } from "react-native-paper";
 import { db, auth } from "../firebase";
 import Header from "./Header";
 import firebase from "firebase";
+import { Ionicons } from "@expo/vector-icons";
+import { TouchableOpacity } from "react-native-gesture-handler";
+import Clipboard from "expo-clipboard";
 interface Props {
   navigation?: any;
   route?: any;
@@ -203,6 +206,31 @@ const ChatScreen: React.FC<Props> = ({ navigation, route }) => {
   return (
     <KeyboardAvoidingView behavior="padding" style={styles.conatiner}>
       <Header navigation={navigation} />
+      {route.params.uid ? (
+        <View style={styles.idTextContainer}>
+          <View style={styles.idText}>
+            <Text
+              style={{
+                color: "#fff",
+                textAlign: "center",
+                fontSize: 13.5,
+                fontWeight: "700",
+              }}
+            >
+              ID: {route.params.uid}
+            </Text>
+            <TouchableOpacity
+              onPress={() => {
+                Clipboard.setString(route.params.uid);
+              }}
+            >
+              <Ionicons name="md-copy-outline" size={21} color="black" />
+            </TouchableOpacity>
+          </View>
+        </View>
+      ) : (
+        <></>
+      )}
       <View style={{ flex: 1 }}>
         <FlatList
           onLayout={() => dummy.current?.scrollToEnd()}
@@ -306,6 +334,16 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "flex-end",
     justifyContent: "center",
+  },
+  idTextContainer: {
+    margin: 5,
+  },
+  idText: {
+    padding: 4,
+    backgroundColor: "#5785e6",
+    borderRadius: 10,
+    justifyContent: "center",
+    alignItems: "center",
   },
 });
 export default ChatScreen;

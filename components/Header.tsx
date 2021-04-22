@@ -12,8 +12,6 @@ interface Props {
 }
 
 const Header: React.FC<Props> = ({ navigation }) => {
-  console.log(auth.currentUser?.photoURL);
-
   const [visible, setVisible] = useState(false);
   const [photo, setPhoto] = React.useState<string>(" ");
   const openMenu = () => setVisible(true);
@@ -41,6 +39,7 @@ const Header: React.FC<Props> = ({ navigation }) => {
         >
           <Avatar.Image
             size={35}
+            style={{ backgroundColor: "#b58282" }}
             source={{
               uri: photo,
             }}

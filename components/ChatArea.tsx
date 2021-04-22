@@ -20,6 +20,7 @@ interface area {
   name: string;
   chatId: string;
   photo: string;
+  uid: string;
 }
 
 const ChatArea: React.FC<Props> = ({ navigation, contacts }) => {
@@ -43,6 +44,7 @@ const ChatArea: React.FC<Props> = ({ navigation, contacts }) => {
             subtitle: doc.data().subtitle,
             chatId: doc.data().chatId,
             photo: doc.data().photo,
+            uid: doc.data().uid,
           }))
         )
       );
@@ -178,7 +180,14 @@ const ChatArea: React.FC<Props> = ({ navigation, contacts }) => {
     };
     test();
   }, [useIsFocused()]);*/
-  const Area: React.FC<area> = ({ title, subtitle, name, chatId, photo }) => {
+  const Area: React.FC<area> = ({
+    title,
+    subtitle,
+    name,
+    chatId,
+    photo,
+    uid,
+  }) => {
     return (
       <View style={styles.container}>
         <Avatar.Image
@@ -186,7 +195,7 @@ const ChatArea: React.FC<Props> = ({ navigation, contacts }) => {
           source={{
             uri: photo,
           }}
-          style={{ marginLeft: 20 }}
+          style={{ marginLeft: 20, backgroundColor: "#b58282" }}
         />
         <TouchableRipple
           onPress={() =>
@@ -194,6 +203,7 @@ const ChatArea: React.FC<Props> = ({ navigation, contacts }) => {
               user: auth.currentUser?.phoneNumber?.replace(/\s+/g, ""),
               number: title.replace(/\s+/g, ""),
               chatId,
+              uid,
             })
           }
           rippleColor="#d3d3d3"
@@ -229,6 +239,7 @@ const ChatArea: React.FC<Props> = ({ navigation, contacts }) => {
               key={val.id}
               chatId={val.chatId}
               photo={val.photo}
+              uid={val.uid}
             />
           ))}
         </View>

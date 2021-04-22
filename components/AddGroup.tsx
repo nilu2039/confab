@@ -14,6 +14,7 @@ const AddGroup: React.FC = () => {
   const [visible, setVisible] = useState<boolean>(false);
   const [success, setSuccess] = useState<boolean>(false);
   const [number, setNumber] = useState<string>("");
+  const [joinId, setJoinId] = useState<string>("");
   const [joinsuccess, setJoinSuccess] = useState<boolean>(false);
   const joingroup = async () => {
     await db
@@ -42,7 +43,6 @@ const AddGroup: React.FC = () => {
           .then((val) => {
             val.docs.map((data) => {
               join2 = data.data().uid;
-              console.log(join2);
             });
           });
         if (join2 == "") {
@@ -70,6 +70,7 @@ const AddGroup: React.FC = () => {
               uid: joinGroup,
               type: "",
               chatId: joinGroup.split("*")[2],
+              photo: `https://robohash.org/${joinGroup.split("*")[2]}`,
             });
           setNumber(joinGroup.split("*")[1]);
           setJoinSuccess(true);
@@ -83,6 +84,7 @@ const AddGroup: React.FC = () => {
   const addgroup = () => {
     if (addGroup) {
       let uid = addGroup + "*" + auth.currentUser?.phoneNumber + "*" + nanoid();
+      setJoinId(uid);
       try {
         const promise = new Promise((resolve, reject) => {
           db.collection("messages")
@@ -123,6 +125,7 @@ const AddGroup: React.FC = () => {
             groupCreator: auth.currentUser?.phoneNumber,
             uid: uid,
             chatId: uid.split("*")[2],
+            photo: `https://robohash.org/${uid.split("*")[2]}`,
           });
         setAddGroup("");
         setSuccess(true);
@@ -239,8 +242,8 @@ const AddGroup: React.FC = () => {
           <Dialog.Title>Congrats</Dialog.Title>
           <Dialog.Content>
             <Paragraph>
-              Group added successfully. Go back to homescreen to start
-              messaging.
+              Group added successfully. Share this code to let other's join{" "}
+              {joinId}. Go back to homescreen to start messaging.
             </Paragraph>
           </Dialog.Content>
           <Dialog.Actions>
