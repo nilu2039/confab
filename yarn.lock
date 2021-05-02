@@ -3522,6 +3522,11 @@ expo-keep-awake@~8.4.0:
   resolved "https://registry.yarnpkg.com/expo-keep-awake/-/expo-keep-awake-8.4.0.tgz#346d0988e6364c46050fef4b7829f302ef3e603d"
   integrity sha512-gozpL5Azfaht/YIMFOHRHjHuJ9KT6hJH4y71Al+/YfQSwHS5sqhoKGPgSxaktqbxRrWVUH9q7wSl3EXRK9bYjA==
 
+expo-linear-gradient@^9.1.0:
+  version "9.1.0"
+  resolved "https://registry.yarnpkg.com/expo-linear-gradient/-/expo-linear-gradient-9.1.0.tgz#7adfe8284268874134954b8249207938c455a5b3"
+  integrity sha512-9W4TxaDrZUzmLzd18+Eo2Ef7ONnuLrHKX0PRyHEGY2/rJCtGiPJtJuR6AS5dkX7WB/Pxlx0zK/p/qDHHw09Uxg==
+
 expo-linear-gradient@~8.4.0:
   version "8.4.0"
   resolved "https://registry.yarnpkg.com/expo-linear-gradient/-/expo-linear-gradient-8.4.0.tgz#34e6f960b1971c57dacf7211c747ba490a76bf63"
@@ -5993,6 +5998,11 @@ react-native-screens@~2.15.2:
   version "2.15.2"
   resolved "https://registry.yarnpkg.com/react-native-screens/-/react-native-screens-2.15.2.tgz#a449700e895b462937211ec72ed6f09652758f06"
   integrity sha512-CagNf2APXkVoRlF3Mugr264FbKbrBg9eXUkqhIPVeZB8EsdS8XPrnt99yj/pzmT+yJMBY0dGrjXT8+68WYh6YQ==
+
+react-native-shimmer-placeholder@^2.0.7:
+  version "2.0.7"
+  resolved "https://registry.yarnpkg.com/react-native-shimmer-placeholder/-/react-native-shimmer-placeholder-2.0.7.tgz#7530937647e0b7991b55a167ca86d4d0d9d32637"
+  integrity sha512-fqqaqIEArcDqoh/wEOAypqAf28i91jBfAUdYVi8vUBFfbApqTjbWY+Np5lVvKYpDYUhlicNUou3q5/f9OCHnWQ==
 
 react-native-snackbar@^2.4.0:
   version "2.4.0"

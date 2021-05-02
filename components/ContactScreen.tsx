@@ -3,9 +3,7 @@ import React, { useEffect, useState } from "react";
 import { ScrollView, Text, View, StyleSheet } from "react-native";
 import * as Contacts from "expo-contacts";
 import { auth, db } from "../firebase";
-import firebase from "firebase";
-import { AntDesign } from "@expo/vector-icons";
-import { TouchableRipple } from "react-native-paper";
+import { Avatar, TouchableRipple } from "react-native-paper";
 import ChatArea from "./ChatArea";
 interface Props {
   navigation: any;
@@ -31,12 +29,19 @@ const App: React.FC<Props> = ({ navigation }) => {
                 data.map((contact) => {
                   if (
                     doc.data().phoneNumber ==
-                    (
-                      "+91" +
-                      contact.phoneNumbers?.map((doc) =>
-                        doc.number?.split(",")
-                      )[0]
-                    ).replace(/\s+/g, "")
+                      (
+                        "+91" +
+                        contact.phoneNumbers?.map((doc) =>
+                          doc.number?.split(",")
+                        )[0]
+                      ).replace(/\s+/g, "") ||
+                    doc.data().phoneNumber ==
+                      (
+                        "" +
+                        contact.phoneNumbers?.map((doc) =>
+                          doc.number?.split(",")
+                        )[0]
+                      ).replace(/\s+/g, "")
                   ) {
                     if (
                       auth.currentUser?.phoneNumber != doc.data().phoneNumber
@@ -47,10 +52,15 @@ const App: React.FC<Props> = ({ navigation }) => {
                           name: contact.name,
                           number:
                             "+91" +
-                            contact.phoneNumbers?.map((doc) =>
-                              doc.number?.split(",")
-                            )[0],
+                            (
+                              "" +
+                              contact.phoneNumbers?.map((doc) =>
+                                doc.number?.split(",")
+                              )[0]
+                            ).replace(/(^\+91)/g, ""),
                           id: doc.id,
+                          photo: doc.data().profilePhoto,
+                          chatName: doc.data().name,
                         },
                       ]);
                     }
@@ -64,70 +74,12 @@ const App: React.FC<Props> = ({ navigation }) => {
     test();
   }, []);
 
-  const addgroup = async (number: string, name: string) => {
-    /*const promise = new Promise((resolve, reject) => {
-      db.collection("messages")
-        .doc("main")
-        .collection("message")
-        .doc(auth.currentUser?.phoneNumber!)
-        .collection("number")
-        .onSnapshot((snapshot) => {
-          for (let i = 0; i < snapshot.docs.length; i++) {
-            if (number.replace(/\s+/g, "") == snapshot.docs[i].data().title) {
-              resolve(0);
-              break;
-            }
-          }
-          resolve(1);
-        });
-    });*/
-
-    //promise.then(async (val) => {
-    /*if (val != 0) {
-        const promise0 = new Promise((resolve, reject) => {
-          db.collection("messages")
-            .doc("main")
-            .collection("messdage")
-            .onSnapshot((snapshot) => {
-              for (let i = 0; i < snapshot.docs.length; i++) {
-                if (snapshot.docs[i].id == auth.currentUser?.phoneNumber) {
-                  resolve(0);
-                  break;
-                }
-              }
-              resolve(1);
-            });
-        });
-        promise0.then((data) => {
-          if (data != 0) {
-            db.collection("messages")
-              .doc("main")
-              .collection("message")
-              .doc(auth.currentUser?.phoneNumber!)
-              .set({
-                name: "HI",
-              });
-          }
-        });
-
-        await db
-          .collection("messages")
-          .doc("main")
-          .collection("message")
-          .doc(auth.currentUser?.phoneNumber!)
-          .collection("number")
-          .add({
-            phoneNumber: auth.currentUser?.phoneNumber,
-            timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-            title: number.replace(/\s+/g, ""),
-            name: name,
-            subtitle: `Hello ${name}`,
-            groupCreator: "",
-            uid: "",
-            type: "external",
-            chatId: "",
-          });
-      }*/
+  const addgroup = async (
+    number: string,
+    name: string,
+    photo: string,
+    chatName: string
+  ) => {
     await db
       .collection("messages")
       .doc("main")
@@ -146,6 +98,9 @@ const App: React.FC<Props> = ({ navigation }) => {
         user: auth.currentUser?.phoneNumber?.replace(/\s+/g, ""),
         number: number.replace(/\s+/g, ""),
         chatId,
+        photo,
+        name,
+        chatName,
       });
     } else {
       navigation.navigate("ChatScreen", {
@@ -154,6 +109,9 @@ const App: React.FC<Props> = ({ navigation }) => {
         chatId:
           auth.currentUser?.phoneNumber?.replace(/\s+/g, "") +
           number.replace(/\s+/g, ""),
+        photo,
+        name,
+        chatName,
       });
     }
     //});
@@ -163,19 +121,22 @@ const App: React.FC<Props> = ({ navigation }) => {
     name: string;
     number: string;
     id: number;
+    photo: string;
+    chatName: string;
   }
 
-  const Area: React.FC<area> = ({ name, number }) => {
+  const Area: React.FC<area> = ({ name, number, photo, chatName }) => {
     return (
       <View style={styles.container}>
-        <AntDesign
-          name="aliwangwang-o1"
-          size={40}
-          color="black"
-          style={{ marginLeft: 20 }}
+        <Avatar.Image
+          size={50}
+          source={{
+            uri: photo,
+          }}
+          style={{ marginLeft: 20, backgroundColor: "#e09f9f" }}
         />
         <TouchableRipple
-          onPress={() => addgroup(number, name)}
+          onPress={() => addgroup(number, name, photo, chatName)}
           rippleColor="#d3d3d3"
           borderless
           style={{ borderRadius: 10 }}
@@ -210,6 +171,8 @@ const App: React.FC<Props> = ({ navigation }) => {
               number={val.number}
               key={val.id}
               id={val.id}
+              photo={val.photo}
+              chatName={val.chatName}
             />
           ))}
         </View>

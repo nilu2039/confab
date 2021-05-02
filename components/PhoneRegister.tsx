@@ -100,6 +100,7 @@ const Register: React.FC<Props> = ({ navigation }) => {
             .doc("phone")
             .collection("number")
             .add({
+              name: name,
               phoneNumber: auth.currentUser?.phoneNumber,
               timestamp: firebase.firestore.FieldValue.serverTimestamp(),
               profilePhoto: photo || `https://robohash.org/${seed}`,
@@ -174,16 +175,6 @@ const Register: React.FC<Props> = ({ navigation }) => {
                 keyboardType="phone-pad"
                 textContentType="telephoneNumber"
                 onChangeText={(text) => setPhoneNumber(text)}
-                style={{ width: 300, marginTop: 20 }}
-              />
-              <TextInput
-                dense
-                secureTextEntry={true}
-                mode="outlined"
-                placeholder="Enter a photo URL(Optional)"
-                value={photo}
-                label="Enter a photo URL(Optional)"
-                onChangeText={(text) => setPhoto(text)}
                 style={{ width: 300, marginTop: 20, marginBottom: 20 }}
               />
             </View>
@@ -209,6 +200,7 @@ const Register: React.FC<Props> = ({ navigation }) => {
                 color="#2C6BEE"
                 onPress={enterCode}
                 disabled={!verificationId}
+                style={{ marginBottom: 10 }}
               >
                 Continue
               </Button>

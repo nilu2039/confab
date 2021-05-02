@@ -1,12 +1,5 @@
 import React, { useState } from "react";
-import {
-  View,
-  Text,
-  Image,
-  StyleSheet,
-  SafeAreaView,
-  LogBox,
-} from "react-native";
+import { View, Image, StyleSheet, SafeAreaView, LogBox } from "react-native";
 import { Button, TextInput } from "react-native-paper";
 import { auth } from "../firebase";
 import LoginHeader from "./LoginHeader";

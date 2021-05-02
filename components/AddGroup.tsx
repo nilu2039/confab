@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { View, Text, Dimensions } from "react-native";
-import { ScrollView, TouchableOpacity } from "react-native-gesture-handler";
+import { TouchableOpacity } from "react-native-gesture-handler";
 import { Button, Dialog, Paragraph, TextInput } from "react-native-paper";
 import { db, auth } from "../firebase";
 import firebase from "firebase";
@@ -173,7 +173,7 @@ const AddGroup: React.FC = () => {
               <Button
                 mode="contained"
                 compact
-                color="#000"
+                color="#558bfa"
                 style={{
                   marginTop: 10,
                   marginLeft: 10,
@@ -212,7 +212,7 @@ const AddGroup: React.FC = () => {
               <Button
                 mode="contained"
                 compact
-                color="#000"
+                color="#558bfa"
                 style={{
                   marginTop: 10,
                   marginLeft: 10,

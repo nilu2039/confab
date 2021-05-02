@@ -9,11 +9,11 @@ import {
 } from "react-native";
 import { Button, TextInput } from "react-native-paper";
 import { db, auth } from "../firebase";
-import Header from "./Header";
 import firebase from "firebase";
-import { Ionicons } from "@expo/vector-icons";
+import { FontAwesome, Ionicons } from "@expo/vector-icons";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import Clipboard from "expo-clipboard";
+import ChatHeader from "./ChatHedaer";
 interface Props {
   navigation?: any;
   route?: any;
@@ -40,6 +40,7 @@ const ChatScreen: React.FC<Props> = ({ navigation, route }) => {
             id: val.id,
             phoneNumber: val.data().phoneNumber,
             text: val.data().text,
+            name: val.data().name,
           }))
         )
       );
@@ -78,13 +79,14 @@ const ChatScreen: React.FC<Props> = ({ navigation, route }) => {
           .doc(route.params.chatId)
           .collection("message")
           .add({
+            name: auth.currentUser?.displayName,
             phoneNumber: auth.currentUser?.phoneNumber,
             timestamp: firebase.firestore.FieldValue.serverTimestamp(),
             text: message,
           });
         setMessage("");
         dummy.current?.scrollToEnd();
-      } else alert("Enter a message");
+      }
     });
     await db
       .collection("messages")
@@ -122,13 +124,13 @@ const ChatScreen: React.FC<Props> = ({ navigation, route }) => {
           phoneNumber: auth.currentUser?.phoneNumber,
           timestamp: firebase.firestore.FieldValue.serverTimestamp(),
           title: route.params.number,
-          name: route.params.number,
-          subtitle: `Hello ${route.params.number}`,
+          name: route.params.chatName,
+          subtitle: `Hello ${route.params.chatName}`,
           groupCreator: "",
           uid: "",
           type: "external",
           chatId: route.params.chatId,
-          photo: photo,
+          photo: route.params.photo,
         });
     }
     await db
@@ -167,8 +169,8 @@ const ChatScreen: React.FC<Props> = ({ navigation, route }) => {
           phoneNumber: auth.currentUser?.phoneNumber,
           timestamp: firebase.firestore.FieldValue.serverTimestamp(),
           title: auth.currentUser?.phoneNumber,
-          name: auth.currentUser?.phoneNumber,
-          subtitle: `Hello ${auth.currentUser?.phoneNumber}`,
+          name: auth.currentUser?.displayName,
+          subtitle: `Hello ${auth.currentUser?.displayName}`,
           groupCreator: "",
           uid: "",
           type: "external",
@@ -205,7 +207,11 @@ const ChatScreen: React.FC<Props> = ({ navigation, route }) => {
   };
   return (
     <KeyboardAvoidingView behavior="padding" style={styles.conatiner}>
-      <Header navigation={navigation} />
+      <ChatHeader
+        navigation={navigation}
+        photo={route.params.photo}
+        name={route.params.name}
+      />
       {route.params.uid ? (
         <View style={styles.idTextContainer}>
           <View style={styles.idText}>
@@ -247,6 +253,18 @@ const ChatScreen: React.FC<Props> = ({ navigation, route }) => {
               }
             >
               <Text
+                style={{
+                  backgroundColor: "#a7c2fc",
+                  borderRadius: 5,
+                  padding: 1,
+                  marginBottom: 5,
+                  borderColor: "#000",
+                  borderWidth: 0.65,
+                }}
+              >
+                {item.name ? item.name : item.phoneNumber}
+              </Text>
+              <Text
                 style={
                   item.phoneNumber === auth.currentUser?.phoneNumber
                     ? styles.sender
@@ -281,7 +299,7 @@ const ChatScreen: React.FC<Props> = ({ navigation, route }) => {
               backgroundColor: "#1744a3",
             }}
           >
-            SEND
+            <FontAwesome name="send" size={22} color="white" />
           </Button>
         </View>
       </View>
@@ -302,22 +320,24 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   sender: {
-    marginBottom: 1,
+    marginBottom: 5,
     backgroundColor: "#2C6BEE",
     padding: 10,
     borderRadius: 10,
     borderWidth: 2,
     borderColor: "black",
     color: "#fff",
+    maxWidth: Dimensions.get("window").width * 0.65,
   },
   receiver: {
-    marginBottom: 1,
+    marginBottom: 5,
     backgroundColor: "#fff",
     padding: 10,
     borderRadius: 10,
     borderWidth: 2,
     borderColor: "black",
     color: "#000",
+    maxWidth: Dimensions.get("window").width * 0.65,
   },
   senderchat: {
     marginLeft: 20,
@@ -339,7 +359,7 @@ const styles = StyleSheet.create({
     margin: 5,
   },
   idText: {
-    padding: 4,
+    padding: 2,
     backgroundColor: "#5785e6",
     borderRadius: 10,
     justifyContent: "center",

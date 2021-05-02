@@ -9,10 +9,8 @@ import PhoneRegister from "./components/PhoneRegister";
 import Header from "./components/Header";
 import ContactScreen from "./components/ContactScreen";
 import AddGroup from "./components/AddGroup";
-
 const App: React.FC = () => {
   const Stack = createStackNavigator();
-
   return (
     <PaperProvider>
       <NavigationContainer>
@@ -34,7 +32,7 @@ const App: React.FC = () => {
                 fontSize: 18,
               },
               headerStyle: {
-                backgroundColor: "#000",
+                backgroundColor: "#558bfa",
                 height: 70,
               },
             }}
@@ -53,7 +51,7 @@ const App: React.FC = () => {
                 fontSize: 18,
               },
               headerStyle: {
-                backgroundColor: "#000",
+                backgroundColor: "#558bfa",
                 height: 70,
               },
             }}
