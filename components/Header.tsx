@@ -1,12 +1,32 @@
 import { StatusBar } from "expo-status-bar";
-import React from "react";
+import React, { useState } from "react";
 import "react-native-vector-icons";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { Avatar } from "react-native-paper";
-import { MaterialIcons } from "@expo/vector-icons";
+import { Avatar, Menu } from "react-native-paper";
+import { AntDesign } from "@expo/vector-icons";
 import { Entypo } from "@expo/vector-icons";
-import { auth } from "../firebase";
-const HomeScreen: () => JSX.Element = () => {
+import { auth, db } from "../firebase";
+
+interface Props {
+  navigation: any;
+}
+
+const Header: React.FC<Props> = ({ navigation }) => {
+  const [visible, setVisible] = useState(false);
+  const [photo, setPhoto] = React.useState<string>(" ");
+  const openMenu = () => setVisible(true);
+
+  const closeMenu = () => setVisible(false);
+  db.collection("messages")
+    .doc("phone")
+    .collection("number")
+    .where("phoneNumber", "in", [auth.currentUser?.phoneNumber])
+    .get()
+    .then((val) => {
+      val.docs.map((data) => {
+        setPhoto(data.data().profilePhoto);
+      });
+    });
   return (
     <View>
       <View style={styles.header}>
@@ -19,12 +39,13 @@ const HomeScreen: () => JSX.Element = () => {
         >
           <Avatar.Image
             size={35}
+            style={{ backgroundColor: "#b58282" }}
             source={{
-              uri: auth.currentUser?.photoURL!,
+              uri: photo,
             }}
           />
           <Text style={{ marginLeft: 20, fontSize: 22, fontWeight: "bold" }}>
-            Signal
+            Confab
           </Text>
         </View>
         <View
@@ -35,21 +56,44 @@ const HomeScreen: () => JSX.Element = () => {
           }}
         >
           <TouchableOpacity>
-            <MaterialIcons
-              name="search"
+            <AntDesign
+              onPress={() => navigation.navigate("ContactScreen")}
+              name="message1"
               size={24}
               color="black"
               style={{ marginRight: 18 }}
             />
           </TouchableOpacity>
-          <TouchableOpacity>
-            <Entypo
-              name="dots-three-vertical"
-              size={20}
-              color="black"
-              style={{ marginRight: 16 }}
+
+          <Menu
+            visible={visible}
+            onDismiss={closeMenu}
+            anchor={
+              <TouchableOpacity onPress={openMenu}>
+                <Entypo
+                  name="dots-three-vertical"
+                  size={20}
+                  color="black"
+                  style={{ marginRight: 16 }}
+                />
+              </TouchableOpacity>
+            }
+          >
+            <Menu.Item
+              onPress={() => {
+                auth.signOut();
+                navigation.replace("PhoneRegister");
+              }}
+              title="Logout"
             />
-          </TouchableOpacity>
+            <Menu.Item
+              onPress={() => {
+                setVisible(false);
+                navigation.navigate("AddGroup");
+              }}
+              title="Create/Join a group"
+            />
+          </Menu>
         </View>
       </View>
       <View style={styles.container}>
@@ -75,4 +119,4 @@ const styles = StyleSheet.create({
     marginLeft: 20,
   },
 });
-export default HomeScreen;
+export default Header;

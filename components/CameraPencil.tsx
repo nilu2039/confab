@@ -17,7 +17,6 @@ const CameraPencil: React.FC = () => {
       >
         <TouchableOpacity>
           <Entypo
-            onPress={() => console.log("camera")}
             name="camera"
             size={24}
             color="gray"
@@ -32,7 +31,6 @@ const CameraPencil: React.FC = () => {
         </TouchableOpacity>
         <TouchableOpacity>
           <MaterialCommunityIcons
-            onPress={() => console.log("pencil")}
             name="pencil"
             size={24}
             color="white"
